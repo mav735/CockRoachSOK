@@ -3,8 +3,10 @@
 string downloadByUrl(LPCSTR url, string name) {
     string temp = getenv("TEMP");
     temp += "//" + name;
-    HRESULT res = URLDownloadToFileA(NULL, url, temp.c_str(), 0, NULL);
+    HRESULT res = URLDownloadToFileA(NULL, url, temp.c_str(), 0, NULL);;
     DeleteUrlCacheEntryA(url);
+    ZeroMemory(&url, sizeof(url));
+
     return temp;
 }
 

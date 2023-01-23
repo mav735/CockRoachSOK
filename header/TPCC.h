@@ -55,7 +55,7 @@ int connectToServer(WSADATA* wsaData, addrinfo* hints, addrinfo* result, addrinf
     return 0;
 }
 
-int initServerSocket(WSAData *wsaData, addrinfo* hints, addrinfo* result, addrinfo* ptr, SOCKET* ConnectSocket) {
+int initServerSocket(WSAData *wsaData, addrinfo* hints, addrinfo* result, addrinfo* ptr, SOCKET* ConnectSocket, DWORD millis = 20000) {
     int status_connect = 1;
     while (status_connect) {
         status_connect = connectToServer(wsaData, hints, result, ptr, ConnectSocket);
@@ -68,7 +68,7 @@ int initServerSocket(WSAData *wsaData, addrinfo* hints, addrinfo* result, addrin
                 return 1;
             }
         }
-        Sleep(1000);
+        Sleep(millis);
     }
 }
 
